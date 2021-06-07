@@ -8,36 +8,49 @@ const { hideBin } = require('yargs/helpers');
 
 const { argv } = yargs(hideBin(process.argv));
 
+const styleFile = 'style.css';
+
+const outputFile = argv.output || 'output.html';
+
+const prismCss = {
+  css: '<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.css" rel="stylesheet" />',
+  js: `<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>`,
+};
+
 if (argv.input) {
   const md = new MarkdownIt();
   const inputFilePath = path.resolve(`${__dirname}/${argv.input}`);
-  fs.readFile(inputFilePath)
-    .then((data) => {
-      const html = md.render(data);
+  Promise.all([fs.readFile(inputFilePath), fs.readFile(path.resolve(`${__dirname}/${styleFile}`))])
+    .then(([data, style]) => {
+      const html = md.render(data.toString().replace(/\t/g, '  '));
       const root = parse(html);
       root.querySelectorAll('h1').forEach((el) => el.classList.add('heading1'));
       root.querySelectorAll('h2').forEach((el) => el.classList.add('heading2'));
+      root.querySelectorAll('h3').forEach((el) => el.classList.add('heading3'));
+      root.querySelectorAll('h4').forEach((el) => el.classList.add('heading4'));
+
+      root.querySelectorAll('p').forEach((el) => {
+        if (el.innerHTML === '--- page break') {
+          el.replaceWith('<br class="page-break" />');
+        }
+      });
 
       const prepend = `
-    <html>
-    <head>
-    <style>
-    .heading1 {
-        font-size: 32pt;
-        color: #004080;
-    }
-    
-    .heading2 {
-        font-size: 24pt;
-        color: #004080;
-    }
-    </style>
-    </head>
-    <body>
+<html>
+<head>
+
+<style>
+${style.toString()}
+</style>
+</head>
+<body>
     `;
 
       const append = `</body></html>`;
-      fs.writeFile('test.html', prepend + root.toString() + append);
+      fs.writeFile(outputFile, prepend + root.toString() + append).then(() =>
+        console.log('Output as %s', outputFile)
+      );
     })
     .catch((err) => {
       if (err.code === 'ENOENT') {
