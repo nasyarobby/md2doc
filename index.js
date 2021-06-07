@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 const MarkdownIt = require('markdown-it');
+const yamljs = require('yamljs');
+const tableify = require('tableify');
 const fs = require('fs').promises;
 const path = require('path');
 const { parse } = require('node-html-parser');
@@ -23,8 +25,12 @@ if (argv.input) {
   const inputFilePath = path.resolve(`./${argv.input}`);
   Promise.all([fs.readFile(inputFilePath), fs.readFile(path.resolve(`${__dirname}/${styleFile}`))])
     .then(([data, style]) => {
-      const html = md.render(data.toString().replace(/\t/g, '  '));
-      const root = parse(html);
+      const html = md.render(data.toString());
+      const root = parse(html, {
+        blockTextElements: {
+          code: true,
+        },
+      });
       root.querySelectorAll('h1').forEach((el) => el.classList.add('heading1'));
       root.querySelectorAll('h2').forEach((el) => el.classList.add('heading2'));
       root.querySelectorAll('h3').forEach((el) => el.classList.add('heading3'));
@@ -36,19 +42,26 @@ if (argv.input) {
         }
       });
 
+      root.querySelectorAll('pre code').forEach((el) => {
+        if (el.attributes.class.split(' ').includes('language-YAMLTABLE')) {
+          const obj = yamljs.parse(el.innerHTML);
+          el.parentNode.replaceWith(tableify(obj));
+        }
+      });
+
       const prepend = `
 <html>
 <head>
-
 <style>
 ${style.toString()}
-</style>
+</style>${argv.prism ? prismCss.css : ''}
 </head>
-<body>
+<body>${argv.prism ? prismCss.js : ''}
     `;
 
       const append = `</body></html>`;
       fs.writeFile(outputFile, prepend + root.toString() + append).then(() =>
+        // eslint-disable-next-line
         console.log('Output as %s', outputFile)
       );
     })

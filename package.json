@@ -1,6 +1,6 @@
 {
   "name": "md2doc",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "",
   "bin": {
     "md2doc": "./index.js"
@@ -26,6 +26,8 @@
   "dependencies": {
     "markdown-it": "^12.0.5",
     "node-html-parser": "^3.1.5",
+    "tableify": "^1.1.0",
+    "yamljs": "^0.3.0",
     "yargs": "^17.0.1"
   }
 }

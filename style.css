@@ -4,6 +4,18 @@ body {
  
   br.page-break {page-break-before: always;}
 
+  table {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    width: 100%;
+  }
+
+  table td, table th {
+    border: 1px solid #000;
+    margin: 0px;
+    padding: 2px;
+  }
+
   .heading1 {
       font-size: 24pt;
   }
@@ -29,8 +41,9 @@ body {
     color: #004080;
     border: 1px solid #004080;
     padding: 5px;
+    tab-size: 2;
   }
-  
+
   pre code {
     font-weight: normal;
     background-color: transparent;
