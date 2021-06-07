@@ -20,8 +20,8 @@ const prismCss = {
 
 if (argv.input) {
   const md = new MarkdownIt();
-  const inputFilePath = path.resolve(`${__dirname}/${argv.input}`);
-  Promise.all([fs.readFile(inputFilePath), fs.readFile(path.resolve(`${__dirname}/${styleFile}`))])
+  const inputFilePath = path.resolve(`./${argv.input}`);
+  Promise.all([fs.readFile(inputFilePath), fs.readFile(path.resolve(`./${styleFile}`))])
     .then(([data, style]) => {
       const html = md.render(data.toString().replace(/\t/g, '  '));
       const root = parse(html);
