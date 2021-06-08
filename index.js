@@ -43,7 +43,11 @@ if (argv.input) {
       });
 
       root.querySelectorAll('pre code').forEach((el) => {
-        if (el.attributes.class.split(' ').includes('language-YAMLTABLE')) {
+        if (
+          el.attributes &&
+          el.attributes.class &&
+          el.attributes.class.split(' ').includes('language-YAMLTABLE')
+        ) {
           const obj = yamljs.parse(el.innerHTML);
           el.parentNode.replaceWith(tableify(obj));
         }

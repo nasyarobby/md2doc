@@ -1,6 +1,6 @@
 {
   "name": "md2doc",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "bin": {
     "md2doc": "./index.js"
